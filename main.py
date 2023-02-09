@@ -10,7 +10,7 @@ WHITE = 255, 255, 255
 class Cube:
     def __init__(self, pos: np.ndarray, a: float) -> None:
         self.pos = pos
-        self.angle = np.pi/2
+        self.angle = np.pi/4
         # self.width = width
         # self.depth = depth
         # self.height = height
@@ -33,12 +33,27 @@ class Cube:
         ])
 
     def draw(self, screen: pygame.surface.Surface, rotationRate: float) -> None:
-        rotation_matrix = np.array([
+        rotation_matrix_x = np.array([
             [1, 0, 0],
             [0, np.cos(self.angle), -np.sin(self.angle)],
             [0, np.sin(self.angle), np.cos(self.angle)]
         ])
-        rotated_cube = np.matmul(self.edges, rotation_matrix)
+        rotation_matrix_y = np.array([
+            [np.cos(self.angle), 0, np.sin(self.angle)],
+            [0, 1, 0],
+            [-np.sin(self.angle), 0, np.cos(self.angle)]
+        ])
+        rotation_matrix_z = np.array([
+            [np.cos(self.angle), -np.sin(self.angle), 0],
+            [np.sin(self.angle), np.cos(self.angle), 0],
+            [0, 0, 1],
+        ])
+        
+        rotated_cube = np.matmul(self.edges, rotation_matrix_x)
+        rotated_cube = np.matmul(rotated_cube, rotation_matrix_y)
+        rotated_cube = np.matmul(rotated_cube, rotation_matrix_z)
+
+        print(rotated_cube[11][1][2])
         moved_cube = np.add(self.pos, rotated_cube)
 
         for edge in moved_cube:
@@ -49,6 +64,8 @@ class Cube:
             end_pos = edge[1][0], edge[1][1]
             pygame.draw.line(screen, color, start_pos, end_pos)
 
+        self.angle += rotationRate
+
 
 def main():
     pygame.init()
@@ -57,7 +74,7 @@ def main():
 
     pygame.display.set_caption("Spinning Cube")
 
-    cube = Cube(np.array([200, 200, 0]), 100)
+    cube = Cube(np.array([400, 400, 0]), 200)
 
     running = True
     while running :
@@ -69,7 +86,7 @@ def main():
 
         # pygame.draw.rect(screen, WHITE, (100, 100, 600, 600))
 
-        cube.draw(screen, 0)
+        cube.draw(screen, 0.001)
 
 
         pygame.display.flip()
