@@ -11,9 +11,8 @@ class Cube:
     def __init__(self, pos: np.ndarray, a: float) -> None:
         self.pos = pos
         self.angle = np.pi/4
-        # self.width = width
-        # self.depth = depth
-        # self.height = height
+
+        self.centerOffset = np.array([-a/2,-a/2,-a/2])
 
         self.edges = np.array([
             np.array([np.array([0,0,0]), np.array([a,0,0])]),
@@ -33,6 +32,8 @@ class Cube:
         ])
 
     def draw(self, screen: pygame.surface.Surface, rotationRate: float) -> None:
+        rotated_cube = np.add(self.edges, self.centerOffset)
+
         rotation_matrix_x = np.array([
             [1, 0, 0],
             [0, np.cos(self.angle), -np.sin(self.angle)],
@@ -49,7 +50,7 @@ class Cube:
             [0, 0, 1],
         ])
         
-        rotated_cube = np.matmul(self.edges, rotation_matrix_x)
+        rotated_cube = np.matmul(rotated_cube, rotation_matrix_x)
         rotated_cube = np.matmul(rotated_cube, rotation_matrix_y)
         rotated_cube = np.matmul(rotated_cube, rotation_matrix_z)
 
@@ -57,9 +58,8 @@ class Cube:
         moved_cube = np.add(self.pos, rotated_cube)
 
         for edge in moved_cube:
-            # color = (255/edge[0][2], 255/edge[0][2], 255/edge[0][2])
             color = WHITE
-            # print(color)
+            
             start_pos = edge[0][0], edge[0][1]
             end_pos = edge[1][0], edge[1][1]
             pygame.draw.line(screen, color, start_pos, end_pos)
@@ -74,7 +74,7 @@ def main():
 
     pygame.display.set_caption("Spinning Cube")
 
-    cube = Cube(np.array([400, 400, 0]), 200)
+    cube = Cube(np.array([400, 400, 200]), 200)
 
     running = True
     while running :
@@ -83,8 +83,6 @@ def main():
                 running = False
 
         screen.fill(BLACK)
-
-        # pygame.draw.rect(screen, WHITE, (100, 100, 600, 600))
 
         cube.draw(screen, 0.001)
 
